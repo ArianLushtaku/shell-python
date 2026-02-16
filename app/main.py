@@ -6,7 +6,8 @@ import subprocess
 commands = {
     "echo": lambda *x: print(" ".join(x)),
     "exit": lambda x=None: exit(),
-    "type": lambda *x: print(f"{"".join(x[0])} is a shell builtin") if x[0] in commands else pathType(x)
+    "type": lambda *x: print(f"{"".join(x[0])} is a shell builtin") if x[0] in commands else pathType(x),
+    "pwd": lambda x=None: print(f'{os.getcwd()}')
 }
 
 def pathType(x):

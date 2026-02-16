@@ -12,7 +12,7 @@ def main():
             case "exit":
                 return False
             case command if "echo" in command:
-                print(f"{command.replace("echo", "")}")
+                print(f"{command.replace("echo ", "")}")
             case _:
                 print(f"{command}: command not found")
 

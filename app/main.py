@@ -1,6 +1,7 @@
 import sys
 import os
 import shutil
+import subprocess
 
 commands = {
     "echo": lambda *x: print(" ".join(x)),
@@ -28,6 +29,8 @@ def main():
             args = parts[1:]
             if command in commands:
                 commands[command](*args)
+            elif os.access((path:= shutil.which(command)), os.X_OK):
+                subprocess.call(user_input.split())
             else:
                 print(f"{command}: command not found")
 

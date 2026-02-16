@@ -17,7 +17,6 @@ def pathType(x):
         print(f'{x}: not found')
 
 def main():
-    PATH = "/usr/bin:/usr/local/bin:"
     while True:
         try:
             sys.stdout.write("$ ")
@@ -29,7 +28,7 @@ def main():
             args = parts[1:]
             if command in commands:
                 commands[command](*args)
-            elif os.access((path:= shutil.which(command)), os.X_OK):
+            elif (path := shutil.which(command)) and os.access(path, os.X_OK):
                 subprocess.call(user_input.split())
             else:
                 print(f"{command}: command not found")

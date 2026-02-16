@@ -8,9 +8,13 @@ def main():
         pass
 
         command = input()
-        if command == "exit":
-            return False
-        print(f"{command}: command not found")
+        match command:
+            case "exit":
+                return False
+            case command if "echo" in command:
+                print(f"{command.replace("echo", "")}")
+            case _:
+                print(f"{command}: command not found")
 
 if __name__ == "__main__":
     main()

@@ -29,7 +29,7 @@ def main():
             if command in commands:
                 commands[command](*args)
             elif (path := shutil.which(command)) and os.access(path, os.X_OK):
-                subprocess.call(user_input.split())
+                subprocess.call(parts)
             else:
                 print(f"{command}: command not found")
 

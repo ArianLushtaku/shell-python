@@ -9,8 +9,9 @@ commands = {
 }
 
 def pathType(x):
-    if path := shutil.which(x[0]):
-        print(f"{x[0]} is {path}")
+    x = x[0]
+    if path := shutil.which(x):
+        print(f"{x} is {path}")
     else:
         print(f'{x}: not found')
 

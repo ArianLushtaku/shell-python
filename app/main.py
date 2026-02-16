@@ -2,7 +2,8 @@ import sys
 
 commands = {
     "echo": lambda *x: print(" ".join(x)),
-    "exit": lambda x=None: exit()
+    "exit": lambda x=None: exit(),
+    "type": lambda x: print(f"{x} is a shell builtin") if x in commands.keys else print(f'{x}: not found')
 }
 
 def main():

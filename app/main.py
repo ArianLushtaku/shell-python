@@ -10,7 +10,7 @@ commands = {
     "exit": lambda x=None: exit(),
     "type": lambda *x: print(f"{x[0]} is a shell builtin") if x[0] in commands else pathType(x),
     "pwd": lambda x=None: print(f'{os.getcwd()}') if not x else print(f"pwd: too many arguments"),
-    "cd": lambda x=None: changeDirectory(x) if x is not None and os.access(x, os.F_OK) else None if x is None else print(f"cd: no such file or directory: {x}")
+    "cd": lambda x=None: changeDirectory(x)
 }
 
 #Type of command, when its not made by me, but is a system executeable command.
@@ -23,12 +23,18 @@ def pathType(x):
 
 #Change directory command or cd.
 def changeDirectory(x): 
-    path = os.getcwd()
-    naked_path = path.split(os.path.sep)
-    if x in os.listdir(path):
-        os.chdir("/".join(naked_path + x.split(os.path.sep)))
+    if x == "~" or x is None:
+        os.chdir(os.getenv('HOME'))
+        return
+    if os.access(x, os.F_OK):
+        path = os.getcwd()
+        naked_path = path.split(os.path.sep)
+        if x in os.listdir(path):
+            os.chdir("/".join(naked_path + x.split(os.path.sep)))
+        else:
+            os.chdir(x)
     else:
-        os.chdir(x)
+        print(f"cd: no such file or directory: {x}")
 
 #Main code
 def main():

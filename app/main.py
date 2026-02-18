@@ -2,6 +2,7 @@ import sys
 import os
 import shutil
 import subprocess
+import shlex
 
 
 #Directory of commands as keys and executeables as values.
@@ -44,7 +45,8 @@ def main():
             pass
 
             user_input = input()
-            parts =  user_input.split()
+            parts =  shlex.split(user_input)
+
             command = parts[0]
             args = parts[1:]
             #execute commands we defined

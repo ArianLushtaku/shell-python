@@ -55,11 +55,15 @@ def handleSystemCommands(parts: list[str], command: str) -> None:
     if ">" in parts or "1>" in parts:
         idx = parts.index(">") if ">" in parts else parts.index("1>")
         with open(parts[idx + 1], "w") as f:
-            subprocess.call(parts[:idx], stdout=f)
+            subprocess.run(parts[:idx], stdout=f, capture_output=True, text=True)
     else:
+        if "cat" in command:
+            result = subprocess.run(parts, capture_output=True, text=True)
+            if not result.stdout.endswith("\n"):
+                print(result.stdout, end="\n")
+                return
         subprocess.call(parts)
-        if command == "cat":
-            pass
+        
 
 #Main code
 def main():

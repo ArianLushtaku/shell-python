@@ -70,8 +70,11 @@ def main():
                     idx = parts.index(">") if ">" in parts else parts.index("1>")
                     with open(parts[idx + 1], "w") as f:
                         subprocess.call(parts[:idx], stdout=f)
+                        continue
                 else:
                     subprocess.call(parts)
+                    print()
+                    continue
 
             else:
                 print(f"{command}: command not found")

@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import shlex
+import sys
 from typing import Callable, Any
 
 
@@ -63,7 +64,9 @@ def handleSystemCommands(parts: list[str], command: str) -> None:
 def main():
     while True:
         try:
-            user_input = input("$ ")
+            sys.stdout.write("$ ")
+            sys.stdout.flush()
+            user_input = input()
             parts =  shlex.split(user_input)
             if parts == []:
                 continue

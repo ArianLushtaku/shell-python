@@ -52,20 +52,20 @@ def handleDirCommands(args: list[str], command: str, commands: dict[str, Callabl
 
 def handleSystemCommands(parts: list[str], command: str) -> None:
     if ">" in parts or "1>" in parts:
+        print("Redirection is not supported for system commands.")
         idx = parts.index(">") if ">" in parts else parts.index("1>")
         with open(parts[idx + 1], "w") as f:
             subprocess.call(parts[:idx], stdout=f)
     else:
         subprocess.call(parts)
         if command == "cat":
-            print()
+            pass
 
 #Main code
 def main():
     while True:
         try:
             sys.stdout.write("$ ")
-            sys.stdout.flush()
             user_input = input()
             parts =  shlex.split(user_input)
             if parts == []:

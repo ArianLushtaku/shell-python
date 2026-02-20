@@ -58,7 +58,7 @@ def handleSystemCommands(parts: list[str], command: str) -> None:
     else:
         subprocess.call(parts)
         if command == "cat":
-            print()
+            pass
 
 #Main code
 def main():

@@ -65,7 +65,8 @@ def main():
         try:
             user_input = input("$ ")
             parts =  shlex.split(user_input)
-
+            if parts == []:
+                continue
             command = parts[0]
             args = parts[1:]
 

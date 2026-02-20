@@ -1,4 +1,3 @@
-import sys
 import os
 import shutil
 import subprocess
@@ -10,14 +9,13 @@ from typing import Callable, Any
 commands: dict[str, Callable[..., Any]] = {
     "echo": lambda *x: " ".join(x),
     "exit": lambda *args: exit(),
-    "type": lambda *x: f"{x[0]} is a shell builtin" if x[0] in commands else pathType(x[0]),
+    "type": lambda *x: None if len(x) < 1 else f"{x[0]} is a shell builtin" if x[0] in commands else pathType(x[0]),
     "pwd": lambda *args: f'{os.getcwd()}' if not args else f"pwd: too many arguments",
-    "cd": lambda *args: changeDirectory(args[0]) if len(args) == 1 else print("cd: too many arguments")
+    "cd": lambda *args: changeDirectory("") if not args else changeDirectory(args[0])
 }
 
 #Type of command, when its not made by me, but is a system executeable command.
 def pathType(x: str) -> str:
-    x = x[0]
     if path := shutil.which(x):
         return f"{x} is {path}"
     else:
@@ -40,41 +38,45 @@ def changeDirectory(x: str):
     else:
         print(f"cd: no such file or directory: {x}")
 
+def handleDirCommands(args: list[str], command: str, commands: dict[str, Callable[..., Any]]) -> Any:
+    if ">" in args or "1>" in args:
+        idx = args.index(">") if ">" in args else args.index("1>")
+        f = open(args[idx + 1], "w")
+        output = commands[command](*args[:idx])
+        if output is not None:
+            f.write(output)
+            f.close()
+    args = args or []
+    return commands[command](*args)
+
+def handleSystemCommands(parts: list[str], command: str) -> None:
+    if ">" in parts or "1>" in parts:
+        idx = parts.index(">") if ">" in parts else parts.index("1>")
+        with open(parts[idx + 1], "w") as f:
+            subprocess.call(parts[:idx], stdout=f)
+    else:
+        subprocess.call(parts)
+        if command == "cat":
+            print()
+
 #Main code
 def main():
     while True:
         try:
-            sys.stdout.write("$ ")
-            pass
-
-            user_input = input()
+            user_input = input("$ ")
             parts =  shlex.split(user_input)
 
             command = parts[0]
             args = parts[1:]
+
             #execute commands we defined
             if command in commands:
-                if ">" in args or "1>" in args:
-                    idx = args.index(">") if ">" in args else args.index("1>")
-                    f = open(args[idx + 1], "w")
-                    output = commands[command](*args[:idx])
-                    if output is not None:
-                        f.write(output)
-                        f.close()
-                    continue
-                args = args or ()
-                print(commands[command](*args))
+                result = handleDirCommands(args, command, commands)
+                if result is not None:
+                    print(result)
             #else if command is a system executeable, execute.
             elif (path := shutil.which(command)) and os.access(path, os.X_OK):
-                if ">" in parts or "1>" in parts:
-                    idx = parts.index(">") if ">" in parts else parts.index("1>")
-                    with open(parts[idx + 1], "w") as f:
-                        subprocess.call(parts[:idx], stdout=f)
-                        continue
-                else:
-                    subprocess.call(parts)
-                    print()
-                    continue
+                handleSystemCommands(parts, command)
 
             else:
                 print(f"{command}: command not found")

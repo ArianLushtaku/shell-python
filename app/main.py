@@ -7,10 +7,10 @@ import shlex
 
 #Directory of commands as keys and executeables as values.
 commands = {
-    "echo": lambda *x: print(" ".join(x)),
+    "echo": lambda *x: " ".join(x),
     "exit": lambda x=None: exit(),
     "type": lambda *x: print(f"{x[0]} is a shell builtin") if x[0] in commands else pathType(x),
-    "pwd": lambda x=None: print(f'{os.getcwd()}') if not x else print(f"pwd: too many arguments"),
+    "pwd": lambda x=None: f'{os.getcwd()}' if not x else f"pwd: too many arguments",
     "cd": lambda x=None: changeDirectory(x)
 }
 
@@ -51,11 +51,25 @@ def main():
             args = parts[1:]
             #execute commands we defined
             if command in commands:
+                if ">" in args:
+                    idx = args.index(">")
+                    f = open(args[idx + 1], "w")
+                    output = commands[command](*args[:idx])
+                    if output is not None:
+                        f.write(output)
+                        f.close()
+                    continue
                 args = args or ()
-                commands[command](*args)
+                print(commands[command](*args))
             #else if command is a system executeable, execute.
             elif (path := shutil.which(command)) and os.access(path, os.X_OK):
-                subprocess.call(parts)
+                if ">" in parts:
+                    idx = parts.index(">")
+                    with open(parts[idx + 1], "w") as f:
+                        subprocess.call(parts[:idx], stdout=f)
+                else:
+                    subprocess.call(parts)
+
             else:
                 print(f"{command}: command not found")
 

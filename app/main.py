@@ -3,29 +3,32 @@ import os
 import shutil
 import subprocess
 import shlex
+from typing import Callable, Any
 
 
 #Directory of commands as keys and executeables as values.
-commands = {
+commands: dict[str, Callable[..., Any]] = {
     "echo": lambda *x: " ".join(x),
-    "exit": lambda x=None: exit(),
-    "type": lambda *x: print(f"{x[0]} is a shell builtin") if x[0] in commands else pathType(x),
-    "pwd": lambda x=None: f'{os.getcwd()}' if not x else f"pwd: too many arguments",
-    "cd": lambda x=None: changeDirectory(x)
+    "exit": lambda *args: exit(),
+    "type": lambda *x: f"{x[0]} is a shell builtin" if x[0] in commands else pathType(x[0]),
+    "pwd": lambda *args: f'{os.getcwd()}' if not args else f"pwd: too many arguments",
+    "cd": lambda *args: changeDirectory(args[0]) if len(args) == 1 else print("cd: too many arguments")
 }
 
 #Type of command, when its not made by me, but is a system executeable command.
-def pathType(x):
+def pathType(x: str) -> str:
     x = x[0]
     if path := shutil.which(x):
-        print(f"{x} is {path}")
+        return f"{x} is {path}"
     else:
-        print(f'{x}: not found')
+        return f'{x}: not found'
 
 #Change directory command or cd.
-def changeDirectory(x): 
-    if x == "~" or x is None:
-        os.chdir(os.getenv('HOME'))
+def changeDirectory(x: str): 
+    if x == "~" or x is "":
+        home = os.getenv('HOME')
+        if home:
+            os.chdir(home)
         return
     if os.access(x, os.F_OK):
         path = os.getcwd()
@@ -51,8 +54,8 @@ def main():
             args = parts[1:]
             #execute commands we defined
             if command in commands:
-                if ">" in args:
-                    idx = args.index(">")
+                if ">" in args or "1>" in args:
+                    idx = args.index(">") if ">" in args else args.index("1>")
                     f = open(args[idx + 1], "w")
                     output = commands[command](*args[:idx])
                     if output is not None:
@@ -63,8 +66,8 @@ def main():
                 print(commands[command](*args))
             #else if command is a system executeable, execute.
             elif (path := shutil.which(command)) and os.access(path, os.X_OK):
-                if ">" in parts:
-                    idx = parts.index(">")
+                if ">" in parts or "1>" in parts:
+                    idx = parts.index(">") if ">" in parts else parts.index("1>")
                     with open(parts[idx + 1], "w") as f:
                         subprocess.call(parts[:idx], stdout=f)
                 else:
@@ -74,7 +77,7 @@ def main():
                 print(f"{command}: command not found")
 
         #When pressing CTRL C, dont throw error, just close silently with Exiting..
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             print("\nExiting...")
             break
 

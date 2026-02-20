@@ -54,8 +54,9 @@ def handleDirCommands(args: list[str], command: str, commands: dict[str, Callabl
 def handleSystemCommands(parts: list[str], command: str) -> None:
     if ">" in parts or "1>" in parts:
         idx = parts.index(">") if ">" in parts else parts.index("1>")
-        with open(parts[idx + 1], "w") as f:
-            subprocess.run(parts[:idx], stdout=f, capture_output=True, text=True)
+        f = open(parts[idx + 1], "w")
+        subprocess.call(parts[:idx], stdout=f)
+        f.close()
     else:
         if "cat" in command:
             result = subprocess.run(parts, capture_output=True, text=True)

@@ -25,7 +25,7 @@ def pathType(x: str) -> str:
 
 #Change directory command or cd.
 def changeDirectory(x: str): 
-    if x == "~" or x is "":
+    if x == "~" or x == "":
         home = os.getenv('HOME')
         if home:
             os.chdir(home)

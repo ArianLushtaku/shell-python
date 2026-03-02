@@ -43,7 +43,7 @@ def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callab
     args = parts[1:]
     if ">" in args:
         idx = args.index(">")
-        f = open(args[idx + 1], "w")
+        f = open(args[idx + 1], "a")
         output = commands[command](*args[:idx])
         if output is not None and not outputError:
             f.write(output)
@@ -56,7 +56,7 @@ def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callab
 def handleSystemCommands(parts: list[str], command: str, outputError: bool) -> None:
     if ">" in parts:
         idx = parts.index(">")
-        f = open(parts[idx + 1], "w")
+        f = open(parts[idx + 1], "a")
         if not outputError:
             subprocess.call(parts[:idx], stdout=f)
         else:

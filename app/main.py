@@ -41,22 +41,24 @@ def changeDirectory(x: str):
 
 def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callable[..., Any]], outputError: bool) -> Any:
     args = parts[1:]
-    if ">" in args:
-        idx = args.index(">")
-        f = open(args[idx + 1], "a")
-        output = commands[command](*args[:idx])
+    if ">" in parts or ">>" in parts:
+        idx = parts.index(">") if ">" in parts else parts.index(">>")
+        f = open(parts[idx + 1], "w") if ">" in parts else open(parts[idx + 1], "a")
+        output = commands[command](*args[:idx-1])
         if output is not None and not outputError:
+            if f.mode == "a":
+                f.write("\n")
             f.write(output)
             return
+        else:
+            return output
         f.close()
-        return output
-    args = args or []
     return commands[command](*args)
 
 def handleSystemCommands(parts: list[str], command: str, outputError: bool) -> None:
-    if ">" in parts:
-        idx = parts.index(">")
-        f = open(parts[idx + 1], "a")
+    if ">" in parts or ">>" in parts:
+        idx = parts.index(">") if ">" in parts else parts.index(">>")
+        f = open(parts[idx + 1], "w") if ">" in parts else open(parts[idx + 1], "a")
         if not outputError:
             subprocess.call(parts[:idx], stdout=f)
         else:

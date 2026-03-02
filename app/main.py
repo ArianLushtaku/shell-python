@@ -39,9 +39,10 @@ def changeDirectory(x: str):
     else:
         print(f"cd: no such file or directory: {x}")
 
-def handleDirCommands(args: list[str], command: str, commands: dict[str, Callable[..., Any]]) -> Any:
-    if ">" in args or "1>" in args:
-        idx = args.index(">") if ">" in args else args.index("1>")
+def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callable[..., Any]]) -> Any:
+    args = parts[1:]
+    if ">" in args:
+        idx = args.index(">")
         f = open(args[idx + 1], "w")
         output = commands[command](*args[:idx])
         if output is not None:
@@ -51,11 +52,14 @@ def handleDirCommands(args: list[str], command: str, commands: dict[str, Callabl
     args = args or []
     return commands[command](*args)
 
-def handleSystemCommands(parts: list[str], command: str) -> None:
-    if ">" in parts or "1>" in parts:
-        idx = parts.index(">") if ">" in parts else parts.index("1>")
+def handleSystemCommands(parts: list[str], command: str, outputError: bool) -> None:
+    if ">" in parts:
+        idx = parts.index(">")
         f = open(parts[idx + 1], "w")
-        subprocess.call(parts[:idx], stdout=f)
+        if not outputError:
+            subprocess.call(parts[:idx], stdout=f)
+        else:
+            subprocess.call(parts[:idx], stderr=f)
         f.close()
     else:
         if "cat" in command:
@@ -70,22 +74,26 @@ def handleSystemCommands(parts: list[str], command: str) -> None:
 def main():
     while True:
         try:
+            outputError = False
             sys.stdout.write("$ ")
             user_input = input()
             parts =  shlex.split(user_input)
             if parts == []:
                 continue
             command = parts[0]
-            args = parts[1:]
-
+            if "1>" in parts:
+                parts[parts.index("1>")] = ">"
+            if "2>" in parts:
+                outputError = True
+                parts[parts.index("2>")] = ">"
             #execute commands we defined
             if command in commands:
-                result = handleDirCommands(args, command, commands)
+                result = handleDirCommands(parts, command, commands)
                 if result is not None:
                     print(result)
             #else if command is a system executeable, execute.
             elif (path := shutil.which(command)) and os.access(path, os.X_OK):
-                handleSystemCommands(parts, command)
+                handleSystemCommands(parts, command, outputError)
 
             else:
                 print(f"{command}: command not found")

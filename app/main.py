@@ -47,8 +47,9 @@ def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callab
         output = commands[command](*args[:idx])
         if output is not None and not outputError:
             f.write(output)
-            f.close()
             return
+        f.close()
+        return output
     args = args or []
     return commands[command](*args)
 

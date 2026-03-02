@@ -84,7 +84,7 @@ def main():
             if parts == []:
                 continue
             command = parts[0]
-            if "1>" in parts:
+            if "1>" in parts or "1>>" in parts:
                 idx = parts.index("1>") if "1>" in parts else parts.index("1>>")
                 parts[idx] = parts[idx].replace("1", "")
             if "2>" in parts or "2>>" in parts:

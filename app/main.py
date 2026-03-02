@@ -43,12 +43,10 @@ def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callab
     args = parts[1:]
     if ">" in parts or ">>" in parts:
         idx = parts.index(">") if ">" in parts else parts.index(">>")
-        f = open(parts[idx + 1], "w") if ">" in parts else open(parts[idx + 1], "a")
+        f = open(parts[idx + 1], "w+") if ">" in parts else open(parts[idx + 1], "a+")
         output = commands[command](*args[:idx-1])
         if output is not None and not outputError:
-            if f.mode == "a":
-                f.write("\n")
-            f.write(output)
+            f.write(f"{output}\n")
             return
         else:
             return output

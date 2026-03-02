@@ -39,13 +39,13 @@ def changeDirectory(x: str):
     else:
         print(f"cd: no such file or directory: {x}")
 
-def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callable[..., Any]]) -> Any:
+def handleDirCommands(parts: list[str], command: str, commands: dict[str, Callable[..., Any]], outputError: bool) -> Any:
     args = parts[1:]
     if ">" in args:
         idx = args.index(">")
         f = open(args[idx + 1], "w")
         output = commands[command](*args[:idx])
-        if output is not None:
+        if output is not None and not outputError:
             f.write(output)
             f.close()
             return
@@ -88,7 +88,7 @@ def main():
                 parts[parts.index("2>")] = ">"
             #execute commands we defined
             if command in commands:
-                result = handleDirCommands(parts, command, commands)
+                result = handleDirCommands(parts, command, commands, outputError)
                 if result is not None:
                     print(result)
             #else if command is a system executeable, execute.

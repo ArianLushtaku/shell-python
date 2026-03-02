@@ -85,10 +85,12 @@ def main():
                 continue
             command = parts[0]
             if "1>" in parts:
-                parts[parts.index("1>")] = ">"
-            if "2>" in parts:
+                idx = parts.index("1>") if "1>" in parts else parts.index("1>>")
+                parts[idx] = parts[idx].replace("1", "")
+            if "2>" in parts or "2>>" in parts:
                 outputError = True
-                parts[parts.index("2>")] = ">"
+                idx = parts.index("2>") if "2>" in parts else parts.index("2>>")
+                parts[idx] = parts[idx].replace("2", "")
             #execute commands we defined
             if command in commands:
                 result = handleDirCommands(parts, command, commands, outputError)
